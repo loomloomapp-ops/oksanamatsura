@@ -1,0 +1,5 @@
+Assets
+backup-*.tar.gz
+.env
+.env.local
+*.tsbuildinfo

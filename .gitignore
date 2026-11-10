@@ -10,3 +10,6 @@ next-env.d.ts
 # Local working material: the licensed design template, client PDFs and screenshots, backups
 /Assets/
 /backup-*.tar.gz
+.vercel
+.env*
+!.env.example
