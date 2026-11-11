@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useId, useState, type ReactNode } from 'react'
+import { useEffect, useId, useState, type ReactNode } from 'react'
 import { Arrow, Plus } from '@/components/ui/Icons'
 import { ImageWrapper } from '@/components/ui/ImageWrapper'
 import { TapHint } from '@/components/ui/TapHint'
@@ -9,11 +9,17 @@ import type { ImageSlot } from '@/content/types'
 
 export type ServiceRow = { icon: ReactNode; title: string; text: string; items: string[]; image: ImageSlot; to: string; more: string }
 
-/** The first service is open, so the main offer is visible without a click. */
+/**
+ * On phones every row starts closed and a hand taps the first plus. From 1024px the first service opens on load,
+ * so the main offer is visible without a click.
+ */
 export function ServiceAccordion({ rows }: { rows: ServiceRow[] }) {
-  const [open, setOpen] = useState<number | null>(0)
+  const [open, setOpen] = useState<number | null>(null)
   const [touched, setTouched] = useState(false)
   const base = useId()
+  useEffect(() => {
+    if (window.matchMedia('(min-width: 1024px)').matches) setOpen(0)
+  }, [])
   const hint = touched ? -1 : rows.findIndex((_, i) => i !== open)
   return (
     <div className="border-t border-line">
