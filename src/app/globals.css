@@ -1792,6 +1792,61 @@
     }
   }
 
+  /*
+   * Process timeline on phones (ProcessSteps sets data-timeline, data-on and --fill): a rail through the number circles,
+   * filling as the page scrolls. Each step draws its own piece, from the gap above it to its bottom (the first from its
+   * circle, the last to its circle), and the circle sits over it. A circle not reached yet is outlined.
+   */
+  @media (max-width: 639px) {
+    .proc__steps[data-timeline] .proc__step {
+      position: relative;
+    }
+
+    .proc__steps[data-timeline] .proc__step::before,
+    .proc__steps[data-timeline] .proc__step::after {
+      content: '';
+      position: absolute;
+      left: calc(16px + 18px - 0.75px);
+      top: calc(-1 * var(--tile-gap));
+      bottom: 0;
+      width: 1.5px;
+      pointer-events: none;
+    }
+
+    .proc__steps[data-timeline] .proc__step:first-child::before,
+    .proc__steps[data-timeline] .proc__step:first-child::after {
+      top: 34px;
+    }
+
+    .proc__steps[data-timeline] .proc__step:last-child::before,
+    .proc__steps[data-timeline] .proc__step:last-child::after {
+      bottom: calc(100% - 34px);
+    }
+
+    .proc__steps[data-timeline] .proc__step::before {
+      background: rgba(56, 31, 26, 0.14);
+    }
+
+    .proc__steps[data-timeline] .proc__step::after {
+      background: var(--color-primary);
+      transform: scaleY(var(--fill, 0));
+      transform-origin: top;
+    }
+
+    .proc__steps[data-timeline] .proc__num {
+      position: relative;
+      z-index: 1;
+      transition: background-color 0.4s, color 0.4s, box-shadow 0.4s, scale 0.5s var(--ease);
+    }
+
+    .proc__steps[data-timeline] .proc__step:not([data-on]) .proc__num {
+      background: var(--color-white);
+      color: rgba(56, 31, 26, 0.55);
+      box-shadow: inset 0 0 0 1.5px rgba(56, 31, 26, 0.18);
+      scale: 0.86;
+    }
+  }
+
   @keyframes proc-draw {
     from {
       transform: scaleX(0);

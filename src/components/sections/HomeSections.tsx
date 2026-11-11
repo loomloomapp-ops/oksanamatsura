@@ -15,6 +15,7 @@ import { CHECK_ANCHOR, ctaLinks } from '@/lib/links'
 import { href, type Locale } from '@/lib/routes'
 import { SITE } from '@/lib/site'
 import { Calculator } from './Calculator'
+import { ProcessSteps } from './ProcessSteps'
 import { ServiceAccordion } from './ServiceAccordion'
 
 type P = { locale: Locale; c: SiteContent }
@@ -176,7 +177,7 @@ export function Process({ heading, steps, cta, image = MEDIA.process }: { headin
             </div>
           )}
         </div>
-        <ol className="proc__steps">
+        <ProcessSteps>
           {steps.map((step, i) => (
             <li key={step.title} className="proc__step reveal">
               <span className="proc__num">{num(i)}</span>
@@ -186,7 +187,7 @@ export function Process({ heading, steps, cta, image = MEDIA.process }: { headin
               </div>
             </li>
           ))}
-        </ol>
+        </ProcessSteps>
         {cta && <div className="proc__cta reveal"><Button href={cta.href}>{cta.label}</Button></div>}
       </div>
     </Section>
