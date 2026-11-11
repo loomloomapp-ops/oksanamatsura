@@ -2,14 +2,13 @@
 
 import { useEffect, useRef, type ReactNode } from 'react'
 
-/** The point on the screen the timeline fills up to, as a share of the viewport height. */
+/** The point on the screen a number fills at, as a share of the viewport height. */
 const READ_LINE = 0.62
 
 /**
- * The process steps as a scroll timeline on phones (below 640px): a thin rail runs through the number circles and fills
- * up to a line 62% down the screen, and each circle fills once the rail reaches it. Every step draws its own piece of
- * the rail (from the gap above it to its bottom), so the circles always sit over the line. From 640px the steps are a
- * grid and the timeline is off. Without JavaScript the circles stay filled and the rail is not drawn.
+ * The process steps on phones (below 640px): each number circle fills once it scrolls past a line 62% down the screen,
+ * so the steps light up one after another. From 640px the steps are a grid and this is off. Without JavaScript the
+ * circles stay filled.
  */
 export function ProcessSteps({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLOListElement>(null)
@@ -29,17 +28,10 @@ export function ProcessSteps({ children }: { children: ReactNode }) {
         return
       }
       ol.setAttribute('data-timeline', '')
-      const gap = parseFloat(getComputedStyle(ol).rowGap) || 0
       const line = window.innerHeight * READ_LINE
-      steps.forEach((li, i) => {
-        const box = li.getBoundingClientRect()
-        const num = li.querySelector('.proc__num')?.getBoundingClientRect()
-        const center = num ? num.top + num.height / 2 : box.top
-        const start = i === 0 ? center : box.top - gap
-        const end = i === steps.length - 1 ? center : box.bottom
-        const fill = reduce.matches ? 1 : Math.min(1, Math.max(0, (line - start) / Math.max(1, end - start)))
-        li.style.setProperty('--fill', fill.toFixed(4))
-        li.toggleAttribute('data-on', reduce.matches || line >= center)
+      steps.forEach((li) => {
+        const num = (li.querySelector('.proc__num') ?? li).getBoundingClientRect()
+        li.toggleAttribute('data-on', reduce.matches || line >= num.top + num.height / 2)
       })
     }
     const schedule = () => {
