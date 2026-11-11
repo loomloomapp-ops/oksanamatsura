@@ -4841,29 +4841,29 @@
     }
   }
 
-  /* Phase 1–2, first visit: the name, then the base from the centre out, the walls, the roof (about 1.2 s). */
+  /* Phase 1–2, first visit: the name, then the base from the centre out, the walls, the roof (about 1.5 s). */
   html.pl-full .pl__ch {
-    animation: pl-char-in 0.6s var(--ease) both;
-    animation-delay: calc(40ms + var(--i) * 20ms);
+    animation: pl-char-in 0.75s var(--ease) both;
+    animation-delay: calc(50ms + var(--i) * 24ms);
   }
 
   html.pl-full .pl__tag {
-    animation: pl-fade-in 0.7s var(--ease) 0.3s both;
+    animation: pl-fade-in 0.8s var(--ease) 0.4s both;
   }
 
   html.pl-full .pl__base {
-    animation: pl-draw 0.45s var(--pl-draw) 0.35s both;
+    animation: pl-draw 0.55s var(--pl-draw) 0.45s both;
   }
 
   html.pl-full .pl__wall {
-    animation: pl-draw 0.38s var(--pl-draw) 0.62s both;
+    animation: pl-draw 0.46s var(--pl-draw) 0.8s both;
   }
 
   html.pl-full .pl__roof {
-    animation: pl-draw 0.38s var(--pl-draw) 0.84s both;
+    animation: pl-draw 0.46s var(--pl-draw) 1.06s both;
   }
 
-  /* Later visits: the frame and name are simply there, and the page opens at once. */
+  /* Later visits: the frame is already there, the name rises into it, and the page opens (about 1.7 s). */
   html.pl-short .pl__base,
   html.pl-short .pl__wall,
   html.pl-short .pl__top {
@@ -4871,29 +4871,30 @@
   }
 
   html.pl-short .pl__ch {
-    transform: none;
+    animation: pl-char-in 0.55s var(--ease) both;
+    animation-delay: calc(50ms + var(--i) * 14ms);
   }
 
   html.pl-short .pl__tag {
-    opacity: 1;
+    animation: pl-fade-in 0.6s var(--ease) 0.2s both;
   }
 
   /* Phase 3: the roof folds back into its corners while the top edge draws out from the centre; the name lifts away. */
   .pl.is-closing .pl__roof {
-    animation: pl-undraw 0.42s var(--pl-cine) both;
+    animation: pl-undraw 0.5s var(--pl-cine) both;
   }
 
   .pl.is-closing .pl__top {
-    animation: pl-draw 0.42s var(--pl-cine) 0.04s both;
+    animation: pl-draw 0.5s var(--pl-cine) 0.04s both;
   }
 
   .pl.is-closing .pl__ch {
-    animation: pl-char-out 0.42s var(--pl-cine) both;
-    animation-delay: calc(var(--i) * 10ms);
+    animation: pl-char-out 0.5s var(--pl-cine) both;
+    animation-delay: calc(var(--i) * 12ms);
   }
 
   .pl.is-closing .pl__tag {
-    animation: pl-fade-out 0.3s ease both;
+    animation: pl-fade-out 0.36s ease both;
   }
 
   /* Phase 4: the inside of the frame wipes up onto the page, then the frame and the panels run out to the screen edges. */
@@ -4906,14 +4907,14 @@
   }
 
   .pl.is-opening .pl__fill {
-    animation: pl-wipe var(--pl-wipe, 0.5s) var(--pl-cine) both;
+    animation: pl-wipe var(--pl-wipe, 0.6s) var(--pl-cine) both;
   }
 
   .pl.is-opening .pl__panel,
   .pl.is-opening .pl__edge {
-    animation-duration: var(--pl-grow, 0.8s);
+    animation-duration: var(--pl-grow, 0.95s);
     animation-timing-function: var(--pl-cine);
-    animation-delay: var(--pl-grow-delay, 0.22s);
+    animation-delay: var(--pl-grow-delay, 0.26s);
     animation-fill-mode: both;
   }
 
@@ -4955,15 +4956,15 @@
 
   /* The edges fade as they reach the screen edges. */
   .pl.is-opening .pl__edge {
-    animation-duration: var(--pl-grow, 0.8s), 0.3s;
+    animation-duration: var(--pl-grow, 0.95s), 0.3s;
     animation-timing-function: var(--pl-cine), ease;
-    animation-delay: var(--pl-grow-delay, 0.22s), calc(var(--pl-grow-delay, 0.22s) + var(--pl-grow, 0.8s) - 0.3s);
+    animation-delay: var(--pl-grow-delay, 0.26s), calc(var(--pl-grow-delay, 0.26s) + var(--pl-grow, 0.95s) - 0.3s);
   }
 
   html.pl-short .pl {
-    --pl-wipe: 0.4s;
-    --pl-grow: 0.56s;
-    --pl-grow-delay: 0.1s;
+    --pl-wipe: 0.5s;
+    --pl-grow: 0.72s;
+    --pl-grow-delay: 0.14s;
   }
 
   /* The hero and header wait under the preloader in their starting state and play once it opens. */

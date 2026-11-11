@@ -8,9 +8,9 @@ const TAG = 'EKSPERT FINANSOWY'
 /**
  * Decides before the first paint whether the preloader runs, so the page never flashes underneath it.
  * First visit: the full sequence. Later visits: a short one. Reduced motion or no JavaScript: none at all.
- * A 6 s fallback clears the classes even if React never hydrates, so the page can never stay covered.
+ * An 8 s fallback clears the classes even if React never hydrates, so the page can never stay covered.
  */
-export const PRELOADER_BOOT = `(function(){var d=document.documentElement;d.classList.add('js');try{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;var k='om-preloader',seen=localStorage.getItem(k);localStorage.setItem(k,'1');d.classList.add('pl-run','pl-hold',seen?'pl-short':'pl-full');setTimeout(function(){d.classList.remove('pl-run','pl-hold','pl-short','pl-full')},6000)}catch(e){}})()`
+export const PRELOADER_BOOT = `(function(){var d=document.documentElement;d.classList.add('js');try{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;var k='om-preloader',seen=localStorage.getItem(k);localStorage.setItem(k,'1');d.classList.add('pl-run','pl-hold',seen?'pl-short':'pl-full');setTimeout(function(){d.classList.remove('pl-run','pl-hold','pl-short','pl-full')},8000)}catch(e){}})()`
 
 const finished = (el: Element | null) =>
   Promise.all((el?.getAnimations() ?? []).map((a) => a.finished)).then(() => undefined, () => undefined)
@@ -48,8 +48,10 @@ export function PremiumPreloader() {
     const ready = Promise.race([Promise.all([document.fonts?.ready, imageReady]), wait(short ? 600 : 2000)])
 
     const run = async () => {
-      // The house finishes drawing (CSS), and the page is ready or the wait is over.
-      await Promise.all([ready, short ? undefined : finished(el.querySelector('.pl__roof'))])
+      // The house (or, on later visits, the name) finishes drawing in CSS, and the page is ready or the wait is over.
+      await Promise.all([ready, finished(el.querySelector(short ? '.pl__ch:last-child' : '.pl__roof'))])
+      // A short pause on the finished mark, so the name is read before the page opens.
+      await wait(short ? 250 : 350)
       if (cancelled) return
       if (!short) {
         el.classList.add('is-closing')
@@ -66,7 +68,7 @@ export function PremiumPreloader() {
       el.style.setProperty('--sy', String((vh + 4) / box.height))
       el.classList.add('is-opening')
       // The hero starts while the frame is still growing, so the two read as one movement.
-      await wait(short ? 220 : 520)
+      await wait(short ? 280 : 620)
       html.classList.remove('pl-hold')
       await finished(el.querySelector('.pl__panel'))
       if (cancelled) return
