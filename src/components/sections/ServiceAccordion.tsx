@@ -17,9 +17,15 @@ export function ServiceAccordion({ rows }: { rows: ServiceRow[] }) {
   const [open, setOpen] = useState<number | null>(null)
   const [touched, setTouched] = useState(false)
   const base = useId()
+  // Follows the screen until the visitor opens or closes a row, so a window resized across 1024px matches too.
   useEffect(() => {
-    if (window.matchMedia('(min-width: 1024px)').matches) setOpen(0)
-  }, [])
+    if (touched) return
+    const desktop = window.matchMedia('(min-width: 1024px)')
+    const sync = () => setOpen(desktop.matches ? 0 : null)
+    sync()
+    desktop.addEventListener('change', sync)
+    return () => desktop.removeEventListener('change', sync)
+  }, [touched])
   const hint = touched ? -1 : rows.findIndex((_, i) => i !== open)
   return (
     <div className="border-t border-line">
