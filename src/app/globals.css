@@ -344,9 +344,11 @@
     background: rgba(255, 255, 255, 0.14);
   }
 
+  /* A long label that wraps (Ukrainian and Russian on phones) reads as a block beside the arrow, aligned left. */
   .btn--arrow {
     justify-content: space-between;
     padding: 8px 8px 8px 26px;
+    text-align: left;
   }
 
   /* Two stacked actions of one width (the wider label) and one height. */
@@ -3363,6 +3365,16 @@
     overflow-y: auto;
     overscroll-behavior: contain;
     padding: calc(var(--header-h) + var(--header-top) + 16px) var(--gutter) calc(20px + env(safe-area-inset-bottom));
+  }
+
+  /* The panel scrolls when the phone is short, so the grain stays on the screen instead of scrolling away with the top. */
+  .mnav::before {
+    position: fixed;
+  }
+
+  .mnav .btn--arrow {
+    padding-block: 10px;
+    padding-left: 22px;
   }
 
   .mnav__item {
