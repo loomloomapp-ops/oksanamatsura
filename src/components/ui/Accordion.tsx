@@ -4,10 +4,13 @@ import { useId, useRef, useState, type KeyboardEvent } from 'react'
 import type { Faq, FaqGroup } from '@/content/types'
 import { Pending } from './Pending'
 import { Bank, Chat, Plus } from './Icons'
+import { TapHint } from './TapHint'
 
 export function Accordion({ items, pendingLabel }: { items: Faq[]; pendingLabel: string }) {
   const [open, setOpen] = useState<number | null>(null)
+  const [touched, setTouched] = useState(false)
   const base = useId()
+  const hint = touched ? -1 : items.findIndex((_, i) => i !== open)
   return (
     <div className="grid gap-2">
       {items.map((item, i) => {
@@ -20,11 +23,11 @@ export function Accordion({ items, pendingLabel }: { items: Faq[]; pendingLabel:
                 id={`${base}-b${i}`}
                 aria-expanded={isOpen}
                 aria-controls={`${base}-p${i}`}
-                onClick={() => setOpen(isOpen ? null : i)}
+                onClick={() => { setOpen(isOpen ? null : i); setTouched(true) }}
                 className="faq-card__btn"
               >
                 {item.q}
-                <span className="faq-icon"><Plus /></span>
+                <span className="faq-icon"><Plus />{i === hint && <TapHint />}</span>
               </button>
             </h3>
             <div id={`${base}-p${i}`} role="region" aria-labelledby={`${base}-b${i}`} className="accordion__panel" data-open={isOpen}>

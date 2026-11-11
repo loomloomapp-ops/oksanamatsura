@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useId, useState, type ReactNode } from 'react'
 import { Arrow, Plus } from '@/components/ui/Icons'
 import { ImageWrapper } from '@/components/ui/ImageWrapper'
+import { TapHint } from '@/components/ui/TapHint'
 import type { ImageSlot } from '@/content/types'
 
 export type ServiceRow = { icon: ReactNode; title: string; text: string; items: string[]; image: ImageSlot; to: string; more: string }
@@ -11,7 +12,9 @@ export type ServiceRow = { icon: ReactNode; title: string; text: string; items: 
 /** The first service is open, so the main offer is visible without a click. */
 export function ServiceAccordion({ rows }: { rows: ServiceRow[] }) {
   const [open, setOpen] = useState<number | null>(0)
+  const [touched, setTouched] = useState(false)
   const base = useId()
+  const hint = touched ? -1 : rows.findIndex((_, i) => i !== open)
   return (
     <div className="border-t border-line">
       {rows.map((row, i) => {
@@ -19,10 +22,13 @@ export function ServiceAccordion({ rows }: { rows: ServiceRow[] }) {
         return (
           <div key={row.to} className="svc-row">
             <h3>
-              <button type="button" id={`${base}-b${i}`} aria-expanded={isOpen} aria-controls={`${base}-p${i}`} onClick={() => setOpen(isOpen ? null : i)} className="svc-row__btn t-h3">
+              <button type="button" id={`${base}-b${i}`} aria-expanded={isOpen} aria-controls={`${base}-p${i}`} onClick={() => { setOpen(isOpen ? null : i); setTouched(true) }} className="svc-row__btn t-h3">
                 <span className="svc-row__icon">{row.icon}</span>
                 {row.title}
-                <Plus size={22} className="svc-plus" />
+                <span className="svc-plus">
+                  <Plus size={22} />
+                  {i === hint && <TapHint />}
+                </span>
               </button>
             </h3>
             <div id={`${base}-p${i}`} role="region" aria-labelledby={`${base}-b${i}`} className="accordion__panel" data-open={isOpen}>

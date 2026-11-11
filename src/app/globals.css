@@ -2883,6 +2883,7 @@
   }
 
   .faq-icon {
+    position: relative;
     display: grid;
     place-items: center;
     flex: none;
@@ -2938,6 +2939,102 @@
 
     50% {
       transform: translateX(0.5rem);
+    }
+  }
+
+  /*
+   * Tap hint (TapHint): a hand whose fingertip rests on an accordion's plus, pressing it every 2.4 s with a ring
+   * spreading from the plus. Phones and tablets only. The fingertip sits at (13px, 3px) of the 32px hand.
+   */
+  .tap-hint {
+    display: none;
+  }
+
+  @media (max-width: 1023px) {
+    .tap-hint {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      z-index: 1;
+      display: block;
+      width: 32px;
+      height: 32px;
+      /* The fingertip lands just below and right of the plus, so the plus stays visible. */
+      margin: 4px 0 0 -9px;
+      color: var(--color-primary);
+      pointer-events: none;
+    }
+
+    .tap-hint i {
+      position: absolute;
+      inset: 0;
+      display: block;
+      background: currentColor;
+      -webkit-mask: url('/icons/swipe-hint.svg') center / contain no-repeat;
+      mask: url('/icons/swipe-hint.svg') center / contain no-repeat;
+      transform-origin: 40% 10%;
+      animation: tap-hint 2.4s var(--ease) infinite;
+    }
+
+    /* A white hand under the outline, so the plus does not show through the palm. */
+    .tap-hint::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--color-white);
+      -webkit-mask: url('/icons/tap-hint-fill.svg') center / contain no-repeat;
+      mask: url('/icons/tap-hint-fill.svg') center / contain no-repeat;
+      transform-origin: 40% 10%;
+      animation: tap-hint 2.4s var(--ease) infinite;
+    }
+
+    .tap-hint::after {
+      content: '';
+      position: absolute;
+      /* Centred on the plus, not on the fingertip. */
+      left: 9px;
+      top: -4px;
+      width: 30px;
+      height: 30px;
+      margin: -15px 0 0 -15px;
+      border-radius: 50%;
+      box-shadow: inset 0 0 0 1.5px currentColor;
+      opacity: 0;
+      animation: tap-ring 2.4s ease-out infinite;
+    }
+  }
+
+  @keyframes tap-hint {
+    0%,
+    100% {
+      transform: translate(6px, 9px);
+    }
+
+    30%,
+    62% {
+      transform: none;
+    }
+
+    42% {
+      transform: scale(0.88);
+    }
+  }
+
+  @keyframes tap-ring {
+    0%,
+    40% {
+      opacity: 0;
+      transform: scale(0.3);
+    }
+
+    46% {
+      opacity: 0.55;
+    }
+
+    80%,
+    100% {
+      opacity: 0;
+      transform: scale(1.15);
     }
   }
 
@@ -3026,13 +3123,19 @@
     transform: rotate(45deg);
   }
 
-  [aria-expanded='true'] .svc-plus {
+  [aria-expanded='true'] .svc-plus svg {
     transform: rotate(45deg);
   }
 
   .svc-plus {
+    position: relative;
+    display: grid;
+    place-items: center;
     margin-left: auto;
     flex: none;
+  }
+
+  .svc-plus svg {
     transition: transform 0.45s var(--ease);
   }
 
@@ -5003,6 +5106,9 @@
     .xp__ring,
     .spot[data-auto='true'] .spot__tab[aria-pressed='true'] .spot__line i,
     .swipe-hint i,
+    .tap-hint i,
+    .tap-hint::before,
+    .tap-hint::after,
     .stage__img {
       animation: none;
     }
