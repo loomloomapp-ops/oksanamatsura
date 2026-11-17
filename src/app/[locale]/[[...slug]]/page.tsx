@@ -129,6 +129,8 @@ export default async function Page(props: Props) {
         formTitle={c.pages.contact.formTitle}
         closeLabel={c.ui.close}
         aside={<ContactRows c={c} />}
+        experts={c.people.map(({ id, name, role, image }) => ({ id, name, role, image }))}
+        expertLabel={c.ui.yourExpert}
       >
         <LeadForm kind="booking" locale={locale} copy={c.form} privacyHref={href(locale, { key: 'privacy' })} />
       </ConsultModal>

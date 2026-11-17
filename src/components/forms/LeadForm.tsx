@@ -2,12 +2,14 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
-import { useEffect, useId, useMemo, useRef, useState, type FormEvent } from 'react'
+import { useContext, useEffect, useId, useMemo, useRef, useState, type FormEvent } from 'react'
 import { useForm, type FieldErrors, type Resolver } from 'react-hook-form'
 import { ButtonBody, buttonClass } from '@/components/ui/Button'
 import { Alert, Check } from '@/components/ui/Icons'
 import type { FormCopy } from '@/content/types'
+import { ExpertContext } from './ExpertContext'
 import { buildSchema, FORMS, QUIZ_STEPS, type FieldConfig, type LeadKind } from '@/lib/forms'
+import { EXPERT_PARAM } from '@/lib/links'
 import type { Locale } from '@/lib/routes'
 
 type Values = Record<string, string | boolean>
@@ -39,6 +41,11 @@ export function LeadForm({ kind, locale, copy, privacyHref, submitLabel }: {
   const advance = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [step, setStep] = useState(0)
   const [state, setState] = useState<'idle' | 'sending' | 'done' | 'failed'>('idle')
+  // The pop-up names the expert; the form on the contact page reads `?ekspert=` (a profile link followed without the pop-up).
+  const chosen = useContext(ExpertContext)
+  const [fromUrl, setFromUrl] = useState<string | null>(null)
+  useEffect(() => { if (kind === 'consultation') setFromUrl(new URLSearchParams(location.search).get(EXPERT_PARAM)) }, [kind])
+  const expert = chosen ?? fromUrl
   const schema = useMemo(() => buildSchema(kind, copy), [kind, copy])
   const { register, handleSubmit, trigger, formState: { errors } } = useForm<Values>({ resolver: zodResolver(schema) as unknown as Resolver<Values> })
 
@@ -60,7 +67,7 @@ export function LeadForm({ kind, locale, copy, privacyHref, submitLabel }: {
       const res = await fetch('/api/lead', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ kind, locale, page: location.pathname, startedAt: started.current, website: honeypot.current?.value, values: { ...values, consent } }),
+        body: JSON.stringify({ kind, locale, page: location.pathname, expert, startedAt: started.current, website: honeypot.current?.value, values: { ...values, consent } }),
       })
       setState(res.ok ? 'done' : 'failed')
     } catch {

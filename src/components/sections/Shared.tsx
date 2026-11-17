@@ -13,7 +13,7 @@ import { Words } from '@/components/ui/Words'
 import { visibleArticles, visibleFaqs } from '@/content'
 import type { Article, CaseStudy, Faq, FaqGroup, Heading, Person, SiteContent } from '@/content/types'
 import { cx } from '@/lib/cx'
-import { ctaLinks } from '@/lib/links'
+import { ctaLinks, expertConsult } from '@/lib/links'
 import { href, type Locale } from '@/lib/routes'
 import { SHOW_PENDING } from '@/lib/site'
 import { FactToggle, PersonBio } from './PersonDetails'
@@ -49,8 +49,8 @@ function PersonFacts({ person, c }: { person: Person; c: SiteContent }) {
   )
 }
 
-/** An expert's profile: portrait or monogram, then name, bio and facts. */
-const ExpertProfile = ({ person, c }: { person: Person; c: SiteContent }) => (
+/** An expert's profile: portrait or monogram, then name, bio, facts and a button that books with this expert. */
+const ExpertProfile = ({ person, c, locale }: { person: Person; c: SiteContent; locale: Locale }) => (
   <article className="expert reveal">
     <div className="expert__media">
       <ImageWrapper image={person.image} fallback={<Monogram name={person.name} dark />} sizes="(max-width: 1023px) 100vw, 30vw" className="h-full w-full !rounded-inner" />
@@ -64,6 +64,7 @@ const ExpertProfile = ({ person, c }: { person: Person; c: SiteContent }) => (
         ? <PersonBio paragraphs={person.bio} more={c.ui.readMore} less={c.ui.readLess} />
         : SHOW_PENDING && <Pending label={c.ui.pending} />}
       <PersonFacts person={person} c={c} />
+      <div className="expert__cta"><Button href={expertConsult(locale, person.id)}>{c.ui.consultExpert}</Button></div>
     </div>
   </article>
 )
@@ -101,14 +102,14 @@ export function TeamSection({ locale, c, heading, full }: P & { heading?: Headin
               <PersonFacts person={founder} c={c} />
             </div>
             <div className="split__cta reveal">
-              <div className="btn-group"><Button href={ctaLinks(locale).consult}>{c.ui.consult}</Button></div>
+              <div className="btn-group"><Button href={expertConsult(locale, founder.id)}>{c.ui.consult}</Button></div>
             </div>
           </div>
         </Section>
         <Section>
           <SectionHeader {...c.pages.team.experts} />
           <div className="grid gap-tile">
-            {experts.map((p) => <ExpertProfile key={p.id} person={p} c={c} />)}
+            {experts.map((p) => <ExpertProfile key={p.id} person={p} c={c} locale={locale} />)}
           </div>
         </Section>
       </>

@@ -94,6 +94,10 @@ export type SiteContent = {
     nav: Record<'home' | 'credits' | 'property' | 'insurance' | 'team' | 'cases' | 'blog' | 'contact', string>
     allCredits: string
     consult: string
+    /** The booking button on an expert's profile. */
+    consultExpert: string
+    /** Above the expert's name in the pop-up opened from their profile. */
+    yourExpert: string
     getConsult: string
     consultShort: string
     check: string

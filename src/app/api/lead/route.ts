@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { getContent } from '@/content'
 import { buildSchema, LEAD_KINDS, type LeadKind } from '@/lib/forms'
 import { appendToSheet, emailConfigured, sendNotification, sheetsConfigured } from '@/lib/leads'
 
@@ -33,7 +34,12 @@ export async function POST(req: Request) {
   const parsed = buildSchema(kind, MESSAGES).safeParse(body.values)
   if (!parsed.success) return NextResponse.json({ ok: false }, { status: 400 })
 
-  const lead = { kind, locale: String(body.locale ?? ''), page: String(body.page ?? ''), values: parsed.data }
+  // Only a known expert is kept; anything else books with the office.
+  const expert = getContent('pl').people.find((p) => p.id === body.expert)
+  const lead = {
+    kind, locale: String(body.locale ?? ''), page: String(body.page ?? ''),
+    expert: expert ? { id: expert.id, name: expert.name } : null, values: parsed.data,
+  }
   const tasks = [sheetsConfigured() && appendToSheet(lead), emailConfigured() && sendNotification(lead)].filter(Boolean) as Promise<void>[]
 
   if (tasks.length === 0) {

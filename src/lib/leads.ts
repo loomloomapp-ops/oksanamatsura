@@ -1,7 +1,8 @@
 import { createSign } from 'node:crypto'
 import { answerText, FORMS, type LeadKind } from './forms'
 
-export type Lead = { kind: LeadKind; locale: string; page: string; values: Record<string, unknown> }
+/** `expert` is the team member the visitor booked with from their profile, or `null` for the office. */
+export type Lead = { kind: LeadKind; locale: string; page: string; expert: { id: string; name: string } | null; values: Record<string, unknown> }
 
 const env = process.env
 export const sheetsConfigured = () => !!(env.GOOGLE_SERVICE_ACCOUNT_EMAIL && env.GOOGLE_PRIVATE_KEY && env.GOOGLE_SHEET_ID)
@@ -37,7 +38,7 @@ export async function appendToSheet(lead: Lead) {
   const token = await googleToken()
   const range = encodeURIComponent(env.GOOGLE_SHEET_RANGE || 'Leads!A:Z')
   const row = [
-    new Date().toISOString(), lead.kind, lead.locale, lead.page,
+    new Date().toISOString(), lead.kind, lead.locale, lead.page, lead.expert?.name ?? '',
     ...FORMS[lead.kind].map((f) => answerText(f, lead.values[f.name])),
   ]
   // RAW keeps user input as plain text, so it can never be evaluated as a spreadsheet formula.
@@ -54,6 +55,18 @@ export async function appendToSheet(lead: Lead) {
 
 const SUBJECTS: Record<LeadKind, string> = { consultation: 'konsultacja (formularz na stronie)', booking: 'konsultacja (okno)' }
 
+/**
+ * Optional per-expert copies: `LEAD_EMAIL_EXPERTS=alina-korobko:alina@example.com,denys-petelin:denys@example.com`.
+ * A lead booked with an expert goes to LEAD_EMAIL_TO and to that expert's address.
+ */
+function expertEmail(id: string) {
+  for (const pair of (env.LEAD_EMAIL_EXPERTS ?? '').split(',')) {
+    const [key, address] = pair.split(':').map((x) => x.trim())
+    if (key === id && address) return address
+  }
+  return null
+}
+
 export async function sendNotification(lead: Lead) {
   const lines = FORMS[lead.kind]
     .filter((f) => !f.sensitive)
@@ -63,9 +76,9 @@ export async function sendNotification(lead: Lead) {
     headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, 'content-type': 'application/json' },
     body: JSON.stringify({
       from: env.LEAD_EMAIL_FROM,
-      to: env.LEAD_EMAIL_TO,
-      subject: `Nowe zgłoszenie: ${SUBJECTS[lead.kind]}`,
-      text: [`Formularz: ${lead.kind}`, `Język: ${lead.locale}`, `Strona: ${lead.page}`, '', ...lines].join('\n'),
+      to: [env.LEAD_EMAIL_TO!, lead.expert && expertEmail(lead.expert.id)].filter(Boolean),
+      subject: `Nowe zgłoszenie: ${SUBJECTS[lead.kind]}${lead.expert ? ` · ${lead.expert.name}` : ''}`,
+      text: [`Formularz: ${lead.kind}`, `Ekspert: ${lead.expert?.name ?? 'biuro (bez wyboru)'}`, `Język: ${lead.locale}`, `Strona: ${lead.page}`, '', ...lines].join('\n'),
     }),
   })
   if (!res.ok) throw new Error(`email ${res.status}`)

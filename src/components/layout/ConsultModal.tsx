@@ -1,14 +1,23 @@
 'use client'
 
-import { useEffect, useRef, type ReactNode } from 'react'
+import Image from 'next/image'
+import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react'
+import { ExpertContext } from '@/components/forms/ExpertContext'
 import { Close } from '@/components/ui/Icons'
+import { Monogram } from '@/components/ui/Panels'
+import type { Person } from '@/content/types'
+import { EXPERT_PARAM } from '@/lib/links'
+
+export type ModalExpert = Pick<Person, 'id' | 'name' | 'role' | 'image'>
 
 /**
  * Consultation pop-up. Any link to the consultation form (`trigger`, e.g. `/kontakt#formularz`) opens it instead of
  * navigating, except on the page that holds the form itself. Without JavaScript the links still go to that form.
  * Uses the native <dialog>: focus stays inside, Esc closes it, focus returns to the button that opened it.
+ * A link from an expert's profile carries `?ekspert=<id>`: the pop-up then shows that expert's photo, name and role, and
+ * the form inside starts afresh and sends the lead tagged with them.
  */
-export function ConsultModal({ trigger, eyebrow, title, lead, formTitle, closeLabel, aside, children }: {
+export function ConsultModal({ trigger, eyebrow, title, lead, formTitle, closeLabel, aside, experts, expertLabel, children }: {
   trigger: string
   eyebrow: string
   title: string
@@ -16,9 +25,13 @@ export function ConsultModal({ trigger, eyebrow, title, lead, formTitle, closeLa
   formTitle: string
   closeLabel: string
   aside: ReactNode
+  experts: ModalExpert[]
+  expertLabel: string
   children: ReactNode
 }) {
   const dialog = useRef<HTMLDialogElement>(null)
+  const [expertId, setExpertId] = useState<string | null>(null)
+  const expert = experts.find((p) => p.id === expertId) ?? null
 
   useEffect(() => {
     const target = new URL(trigger, location.origin)
@@ -31,6 +44,7 @@ export function ConsultModal({ trigger, eyebrow, title, lead, formTitle, closeLa
       if (location.pathname === target.pathname) return
       // Capture phase: cancelling here stops next/link from navigating; the link's own onClick (closing the menu) still runs.
       e.preventDefault()
+      setExpertId(url.searchParams.get(EXPERT_PARAM))
       dialog.current?.showModal()
     }
     document.addEventListener('click', onClick, true)
@@ -60,13 +74,35 @@ export function ConsultModal({ trigger, eyebrow, title, lead, formTitle, closeLa
       <div className="modal__panel">
         <button type="button" aria-label={closeLabel} onClick={() => dialog.current?.close()} className="modal__close"><Close size={18} /></button>
         <header className="modal__head">
-          <p className="t-label eyebrow">{eyebrow}</p>
-          <h2 id="consult-modal-title" className="modal__title">{title}</h2>
+          {expert ? (
+            <>
+              <p className="t-label eyebrow">{expertLabel}</p>
+              <div className="modal__expert">
+                <div className="modal__photo">
+                  {expert.image.src
+                    ? <Image src={expert.image.src} alt={expert.image.alt} fill sizes="120px" className="object-cover" style={{ objectPosition: expert.image.position }} />
+                    : <Monogram name={expert.name} small />}
+                </div>
+                <div>
+                  <h2 id="consult-modal-title" className="modal__title modal__title--name">{expert.name}</h2>
+                  <p className="modal__role">{expert.role}</p>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="t-label eyebrow">{eyebrow}</p>
+              <h2 id="consult-modal-title" className="modal__title">{title}</h2>
+            </>
+          )}
           <p className="modal__lead">{lead}</p>
         </header>
         <div className="modal__form">
           <h3 className="consult__title">{formTitle}</h3>
-          {children}
+          {/* A different expert starts the questionnaire afresh. */}
+          <ExpertContext value={expert?.id ?? null}>
+            <Fragment key={expert?.id ?? 'office'}>{children}</Fragment>
+          </ExpertContext>
         </div>
         <div className="modal__reach">{aside}</div>
       </div>
