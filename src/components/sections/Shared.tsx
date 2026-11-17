@@ -123,7 +123,7 @@ export function TeamSection({ locale, c, heading, full }: P & { heading?: Headin
           {heading && <h2 className="t-h1-page mt-4" data-reveal><Words text={heading.h2} /></h2>}
           <p className="t-lead reveal mt-4 text-muted">{c.pages.team.lead}</p>
         </header>
-        <TeamRoster people={c.people} />
+        <TeamRoster people={c.people} locale={locale} bookLabel={c.ui.consultExpert} />
         <div className="roster__cta btn-group reveal">
           <Button href={ctaLinks(locale).consult}>{c.ui.consult}</Button>
           <Button href={href(locale, { key: 'team' })} variant="secondary">{c.ui.nav.team}</Button>
